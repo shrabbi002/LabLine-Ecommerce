@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import api, { ASSET_BASE_URL } from '../api';
+import api from '../api';
 import ProductSlider, { ProductSliderSkeleton } from '../components/ProductSlider';
+import { resolveImage } from '../components/ItemCard';
 import { Aurora, Reveal, CountUp, spotlightHandler } from '../components/motion';
 import {
   ArrowRight, Star, Sparkles, Code2, ShieldCheck, Zap, TrendingUp, MousePointer2, Layers, Rocket, Package,
@@ -154,7 +155,7 @@ const Home = () => {
                 <div className="relative glass rounded-[2rem] p-3 aspect-[4/5] overflow-hidden">
                   {heroContent.image ? (
                     <img
-                      src={`${ASSET_BASE_URL}${heroContent.image}`}
+                      src={resolveImage(heroContent.image)}
                       alt="Featured showcase"
                       className="object-cover w-full h-full rounded-[1.5rem]"
                     />

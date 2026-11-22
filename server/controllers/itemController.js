@@ -3,6 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
+import { fileUrl, uploadDir } from '../middleware/upload.js';
 
 // Helper to delete local image files
 const deleteLocalImages = (images) => {
@@ -11,7 +12,7 @@ const deleteLocalImages = (images) => {
     // If the image is a local path (starts with /uploads or uploads)
     if (img.includes('/uploads/')) {
       const filename = img.split('/').pop();
-      const filePath = path.join('./uploads', filename);
+      const filePath = path.join(uploadDir, filename);
       if (fs.existsSync(filePath)) {
         try {
           fs.unlinkSync(filePath);
@@ -174,7 +175,7 @@ export const createItem = async (req, res) => {
 
     // Handle files if uploaded
     if (req.files && req.files.length > 0) {
-      itemData.images = req.files.map((file) => `/uploads/${file.filename}`);
+      itemData.images = req.files.map((file) => fileUrl(file));
     } else {
       itemData.images = [];
     }
@@ -189,7 +190,7 @@ export const createItem = async (req, res) => {
   } catch (error) {
     // Delete files if creation failed
     if (req.files) {
-      const filesToDelete = req.files.map((file) => `/uploads/${file.filename}`);
+      const filesToDelete = req.files.map((file) => fileUrl(file));
       deleteLocalImages(filesToDelete);
     }
 
@@ -231,7 +232,7 @@ export const updateItem = async (req, res) => {
     // Handling images
     let newImages = [];
     if (req.files && req.files.length > 0) {
-      newImages = req.files.map((file) => `/uploads/${file.filename}`);
+      newImages = req.files.map((file) => fileUrl(file));
     }
 
     // Merge or replace images
@@ -268,7 +269,7 @@ export const updateItem = async (req, res) => {
   } catch (error) {
     // Delete files if update failed
     if (req.files) {
-      const filesToDelete = req.files.map((file) => `/uploads/${file.filename}`);
+      const filesToDelete = req.files.map((file) => fileUrl(file));
       deleteLocalImages(filesToDelete);
     }
 

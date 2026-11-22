@@ -1,12 +1,13 @@
 import Content from '../models/Content.js';
 import fs from 'fs';
 import path from 'path';
+import { fileUrl, uploadDir } from '../middleware/upload.js';
 
 // Helper to delete old content image from disk
 const deleteOldImage = (imagePath) => {
   if (!imagePath || !imagePath.startsWith('/uploads/')) return;
   const filename = imagePath.split('/').pop();
-  const filePath = path.join('./uploads', filename);
+  const filePath = path.join(uploadDir, filename);
   if (fs.existsSync(filePath)) {
     try {
       fs.unlinkSync(filePath);
@@ -138,7 +139,7 @@ export const updateContent = async (req, res) => {
 
     // Process image uploads
     if (req.file) {
-      updateData.image = `/uploads/${req.file.filename}`;
+      updateData.image = fileUrl(req.file);
 
       // Delete old image if a new one is uploaded
       if (content && content.image) {
@@ -175,7 +176,7 @@ export const updateContent = async (req, res) => {
   } catch (error) {
     // Delete newly uploaded file if execution failed
     if (req.file) {
-      deleteOldImage(`/uploads/${req.file.filename}`);
+      deleteOldImage(fileUrl(req.file));
     }
 
     res.status(400).json({

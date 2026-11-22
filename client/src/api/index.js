@@ -1,6 +1,8 @@
 import axios from 'axios';
 
-export const ASSET_BASE_URL = import.meta.env.VITE_ASSET_URL || 'http://localhost:3002';
+// In production the API is served from the same domain (Vercel), so paths stay relative.
+export const ASSET_BASE_URL =
+  import.meta.env.VITE_ASSET_URL ?? (import.meta.env.PROD ? '' : 'http://localhost:3002');
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || `${ASSET_BASE_URL}/api`,

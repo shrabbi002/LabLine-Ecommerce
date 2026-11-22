@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import api, { ASSET_BASE_URL } from '../api';
+import api from '../api';
+import { resolveImage } from '../components/ItemCard';
 import { Aurora, Reveal, CountUp, PageLoader, spotlightHandler } from '../components/motion';
 import { Target, Calendar, Award, CheckCircle, ArrowRight, Heart, Lightbulb, Gem } from 'lucide-react';
 
@@ -56,7 +57,7 @@ const About = () => {
   ];
 
   const imageUrl = aboutContent.image
-    ? `${ASSET_BASE_URL}${aboutContent.image}`
+    ? resolveImage(aboutContent.image)
     : 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=800&q=80';
 
   return (

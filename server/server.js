@@ -8,6 +8,7 @@ import fs from 'fs';
 import { fileURLToPath } from 'url';
 
 import connectDB from './config/db.js';
+import { uploadDir } from './middleware/upload.js';
 import User from './models/User.js';
 import Item from './models/Item.js';
 
@@ -24,46 +25,24 @@ const __dirname = path.dirname(__filename);
 // Load env variables
 dotenv.config();
 
-// Connect to Database
-connectDB();
 
 // Seed initial Admin User if no users exist
 const seedAdmin = async () => {
   try {
     const adminCount = await User.countDocuments();
-    if (adminCount === 0) {
-      const email = process.env.INITIAL_ADMIN_EMAIL || 'admin@example.com';
-      const password = process.env.INITIAL_ADMIN_PASSWORD || 'adminpassword123';
-      const name = process.env.INITIAL_ADMIN_NAME || 'Admin';
+    if (adminCount > 0) return;
 
-      await User.create({
-        name,
-        email,
-        password,
-        role: 'admin',
-      });
-      console.log(`\n======================================================`);
-      console.log(`[SEED] Initial Admin user created!`);
-      console.log(`[SEED] Email: ${email}`);
-      console.log(`[SEED] Password: ${password}`);
-      console.log(`======================================================\n`);
+    const email = process.env.INITIAL_ADMIN_EMAIL;
+    const password = process.env.INITIAL_ADMIN_PASSWORD;
+    const name = process.env.INITIAL_ADMIN_NAME || 'Admin';
+
+    if (!email || !password) {
+      console.warn('[SEED] No users exist. Set INITIAL_ADMIN_EMAIL and INITIAL_ADMIN_PASSWORD to create the first admin.');
+      return;
     }
 
-    // Always ensure user 'shrabbi' exists for evaluation
-    const shrabbiUser = await User.findOne({ name: 'shrabbi' });
-    if (!shrabbiUser) {
-      await User.create({
-        name: 'shrabbi',
-        email: 'shrabbi@example.com',
-        password: '12345678',
-        role: 'admin',
-      });
-      console.log(`\n======================================================`);
-      console.log(`[SEED] User 'shrabbi' seeded!`);
-      console.log(`[SEED] Username: shrabbi`);
-      console.log(`[SEED] Password: 12345678`);
-      console.log(`======================================================\n`);
-    }
+    await User.create({ name, email, password, role: 'admin' });
+    console.log(`[SEED] Initial admin user created for ${email}`);
   } catch (error) {
     console.error('Error seeding admin user:', error.message);
   }
@@ -140,18 +119,33 @@ const seedItems = async () => {
   }
 };
 
-const seedAll = async () => {
-  await seedAdmin();
-  await seedItems();
+// Seed once per process, after the first successful DB connection.
+let seedPromise = null;
+const seedAll = () => {
+  if (!seedPromise) {
+    seedPromise = (async () => {
+      await seedAdmin();
+      await seedItems();
+    })();
+  }
+  return seedPromise;
 };
-seedAll();
 
 const app = express();
+
+// Behind Vercel's proxy: needed so rate limiting sees the real client IP.
+app.set('trust proxy', 1);
 
 // Set CORS policies (CORS configured to match client's Vite port)
 app.use(
   cors({
-    origin: ['http://localhost:5173', 'http://127.0.0.1:5173'],
+    origin: [
+      'http://localhost:5173',
+      'http://127.0.0.1:5173',
+      ...(process.env.CLIENT_URL ? process.env.CLIENT_URL.split(',').map((u) => u.trim()) : []),
+      ...(process.env.VERCEL_URL ? [`https://${process.env.VERCEL_URL}`] : []),
+      ...(process.env.VERCEL_PROJECT_PRODUCTION_URL ? [`https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`] : []),
+    ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
@@ -193,12 +187,26 @@ const contactLimiter = rateLimit({
   },
 });
 
-// Serve static uploads
+// Serve static uploads (images committed in server/uploads, plus any new local uploads)
 const uploadsPath = path.join(__dirname, 'uploads');
-if (!fs.existsSync(uploadsPath)) {
+if (!process.env.VERCEL && !fs.existsSync(uploadsPath)) {
   fs.mkdirSync(uploadsPath, { recursive: true });
 }
 app.use('/uploads', express.static(uploadsPath));
+if (path.resolve(uploadDir) !== path.resolve(uploadsPath) && fs.existsSync(uploadDir)) {
+  app.use('/uploads', express.static(uploadDir));
+}
+
+// Ensure the database is connected (and seeded) before any API route runs
+app.use('/api', async (req, res, next) => {
+  try {
+    await connectDB();
+    await seedAll();
+    next();
+  } catch (err) {
+    res.status(503).json({ success: false, message: 'Database unavailable. Please try again shortly.' });
+  }
+});
 
 // Mount Routes
 app.use('/api/auth', authLimiter, authRoutes);
@@ -225,7 +233,15 @@ app.use((err, req, res, next) => {
   });
 });
 
-const PORT = process.env.PORT || 3002;
-app.listen(PORT, () => {
-  console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
-});
+// On Vercel the app is imported by api/index.js; locally we start a normal server.
+if (!process.env.VERCEL) {
+  const PORT = process.env.PORT || 3002;
+  connectDB()
+    .then(seedAll)
+    .catch(() => console.error('Starting without a database connection; API calls will return 503 until it is reachable.'));
+  app.listen(PORT, () => {
+    console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
+  });
+}
+
+export default app;
