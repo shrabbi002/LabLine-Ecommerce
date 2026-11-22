@@ -13,7 +13,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Sparkles,
-  AlertTriangle
+  AlertCircle
 } from 'lucide-react';
 
 const ItemManager = () => {

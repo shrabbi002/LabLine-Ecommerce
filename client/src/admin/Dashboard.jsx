@@ -2,12 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../api';
+import { CountUp, PageLoader, spotlightHandler } from '../components/motion';
 import {
   FolderOpen,
   Mail,
   Edit,
   Settings,
-  Sparkles,
   ArrowRight,
   Eye,
   CheckCircle,
@@ -116,77 +116,70 @@ const Dashboard = () => {
   ];
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-950 text-white">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 border-4 border-primary-500 border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-slate-400 font-medium tracking-wide">Loading dashboard data...</p>
-        </div>
-      </div>
-    );
+    return <PageLoader label="Loading dashboard data..." />;
   }
 
   return (
-    <div className="bg-slate-950 min-h-screen text-slate-100 py-10">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+    <div className="text-slate-100 py-2">
+      <div className="space-y-10">
         
         {/* Header Greeting */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between border-b border-slate-900 pb-6 gap-4">
+        <div className="flex flex-col md:flex-row md:items-center justify-between border-b border-white/[0.06] pb-6 gap-4 animate-slide-up">
           <div>
-            <h1 className="text-3xl font-extrabold text-white tracking-tight">Dashboard Overview</h1>
+            <h1 className="font-display text-3xl sm:text-4xl font-bold text-white tracking-tight">Dashboard <span className="text-gradient">Overview</span></h1>
             <p className="text-slate-400 text-sm mt-1">
               Welcome back, <span className="text-primary-400 font-semibold">{user?.name}</span>. Manage your platform contents here.
             </p>
           </div>
-          <div className="flex items-center gap-2 text-xs text-slate-500 bg-slate-900 border border-slate-800 px-3.5 py-1.5 rounded-xl font-medium self-start md:self-center">
-            <Sparkles className="w-3.5 h-3.5 text-amber-500 animate-pulse" /> Platform Connected
+          <div className="flex items-center gap-2 text-xs text-slate-300 glass px-3.5 py-1.5 rounded-full font-medium self-start md:self-center">
+            <span className="relative flex w-2 h-2"><span className="absolute inline-flex w-full h-full rounded-full bg-emerald-400 opacity-75 animate-ping" /><span className="relative inline-flex w-2 h-2 rounded-full bg-emerald-400" /></span> Platform Connected
           </div>
         </div>
 
         {/* Stats Grid cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {/* Total items count */}
-          <div className="bg-slate-900 border border-slate-850 p-6 rounded-2xl flex items-center gap-4 shadow-lg shadow-slate-950/20">
-            <div className="w-12 h-12 rounded-xl bg-blue-950/50 border border-blue-900/30 flex items-center justify-center text-blue-400">
+          <div onMouseMove={spotlightHandler} style={{ animationDelay: '80ms' }} className="spotlight group glass p-6 rounded-2xl flex items-center gap-4 hover:-translate-y-1 hover:border-white/15 transition-all duration-500 animate-slide-up">
+            <div className="w-12 h-12 rounded-xl bg-blue-950/50 border border-blue-900/30 flex items-center justify-center text-blue-400 relative z-10 group-hover:scale-110 group-hover:-rotate-6 transition-transform duration-500">
               <FolderOpen className="w-6 h-6" />
             </div>
-            <div>
-              <div className="text-sm font-semibold text-slate-500 uppercase tracking-wide">Total Items</div>
-              <div className="text-2xl font-extrabold text-white mt-0.5">{stats.totalItems}</div>
+            <div className="relative z-10">
+              <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Items</div>
+              <div className="font-display text-3xl font-bold text-white mt-0.5"><CountUp value={stats.totalItems} /></div>
             </div>
           </div>
 
           {/* Active listings count */}
-          <div className="bg-slate-900 border border-slate-850 p-6 rounded-2xl flex items-center gap-4 shadow-lg shadow-slate-950/20">
-            <div className="w-12 h-12 rounded-xl bg-emerald-950/50 border border-emerald-900/30 flex items-center justify-center text-emerald-400">
+          <div onMouseMove={spotlightHandler} style={{ animationDelay: '160ms' }} className="spotlight group glass p-6 rounded-2xl flex items-center gap-4 hover:-translate-y-1 hover:border-white/15 transition-all duration-500 animate-slide-up">
+            <div className="w-12 h-12 rounded-xl bg-emerald-950/50 border border-emerald-900/30 flex items-center justify-center text-emerald-400 relative z-10 group-hover:scale-110 group-hover:-rotate-6 transition-transform duration-500">
               <CheckCircle className="w-6 h-6" />
             </div>
-            <div>
-              <div className="text-sm font-semibold text-slate-500 uppercase tracking-wide">Active Listings</div>
-              <div className="text-2xl font-extrabold text-white mt-0.5">{stats.activeItems}</div>
+            <div className="relative z-10">
+              <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Active Listings</div>
+              <div className="font-display text-3xl font-bold text-white mt-0.5"><CountUp value={stats.activeItems} /></div>
             </div>
           </div>
 
           {/* Draft listings count */}
-          <div className="bg-slate-900 border border-slate-850 p-6 rounded-2xl flex items-center gap-4 shadow-lg shadow-slate-950/20">
-            <div className="w-12 h-12 rounded-xl bg-amber-950/50 border border-amber-900/30 flex items-center justify-center text-amber-400">
+          <div onMouseMove={spotlightHandler} style={{ animationDelay: '240ms' }} className="spotlight group glass p-6 rounded-2xl flex items-center gap-4 hover:-translate-y-1 hover:border-white/15 transition-all duration-500 animate-slide-up">
+            <div className="w-12 h-12 rounded-xl bg-amber-950/50 border border-amber-900/30 flex items-center justify-center text-amber-400 relative z-10 group-hover:scale-110 group-hover:-rotate-6 transition-transform duration-500">
               <FileText className="w-6 h-6" />
             </div>
-            <div>
-              <div className="text-sm font-semibold text-slate-500 uppercase tracking-wide">Draft Catalog</div>
-              <div className="text-2xl font-extrabold text-white mt-0.5">{stats.draftItems}</div>
+            <div className="relative z-10">
+              <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Draft Catalog</div>
+              <div className="font-display text-3xl font-bold text-white mt-0.5"><CountUp value={stats.draftItems} /></div>
             </div>
           </div>
 
           {/* Unread inbox count */}
-          <div className="bg-slate-900 border border-slate-850 p-6 rounded-2xl flex items-center gap-4 shadow-lg shadow-slate-950/20">
-            <div className="w-12 h-12 rounded-xl bg-violet-950/50 border border-violet-900/30 flex items-center justify-center text-violet-400">
+          <div onMouseMove={spotlightHandler} style={{ animationDelay: '320ms' }} className="spotlight group glass p-6 rounded-2xl flex items-center gap-4 hover:-translate-y-1 hover:border-white/15 transition-all duration-500 animate-slide-up">
+            <div className="w-12 h-12 rounded-xl bg-violet-950/50 border border-violet-900/30 flex items-center justify-center text-violet-400 relative z-10 group-hover:scale-110 group-hover:-rotate-6 transition-transform duration-500">
               <Mail className="w-6 h-6" />
             </div>
-            <div>
-              <div className="text-sm font-semibold text-slate-500 uppercase tracking-wide">Unread Messages</div>
-              <div className="text-2xl font-extrabold text-white mt-0.5">
-                {stats.unreadMessages} <span className="text-slate-500 text-sm font-normal">/ {stats.totalMessages}</span>
+            <div className="relative z-10">
+              <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Unread Messages</div>
+              <div className="font-display text-3xl font-bold text-white mt-0.5">
+                <CountUp value={stats.unreadMessages} /> <span className="text-slate-500 text-sm font-normal">/ {stats.totalMessages}</span>
               </div>
             </div>
           </div>
@@ -196,7 +189,7 @@ const Dashboard = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* Left panel: Quick Actions Grid */}
           <div className="lg:col-span-8 space-y-6">
-            <h2 className="text-xl font-bold text-white border-b border-slate-900 pb-3">Administrative Hub</h2>
+            <h2 className="font-display text-xl font-bold text-white border-b border-white/[0.06] pb-3">Administrative Hub</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               {shortcuts.map((card, idx) => {
                 const Icon = card.icon;
@@ -204,10 +197,12 @@ const Dashboard = () => {
                   <Link
                     key={idx}
                     to={card.path}
-                    className="group bg-slate-900 border border-slate-850 hover:border-slate-700/50 p-6 rounded-2xl shadow-md transition-all duration-300 hover:shadow-xl flex flex-col justify-between h-48 relative overflow-hidden"
+                    onMouseMove={spotlightHandler}
+                    style={{ animationDelay: `${400 + idx * 90}ms` }}
+                    className="spotlight group glass hover:border-primary-500/30 p-6 rounded-2xl transition-all duration-500 hover:-translate-y-1.5 hover:shadow-[0_25px_50px_-20px_rgba(124,58,237,0.5)] flex flex-col justify-between h-48 relative overflow-hidden animate-slide-up"
                   >
                     {/* Background icon glow decoration */}
-                    <div className="absolute right-[-10px] bottom-[-10px] opacity-5 text-slate-500 pointer-events-none group-hover:scale-110 transition-transform duration-500">
+                    <div className="absolute right-[-10px] bottom-[-10px] opacity-5 text-slate-400 pointer-events-none group-hover:scale-125 group-hover:-rotate-12 group-hover:opacity-10 transition-all duration-700">
                       <Icon className="w-36 h-36" />
                     </div>
 
@@ -226,8 +221,8 @@ const Dashboard = () => {
                       <p className="text-slate-400 text-xs leading-relaxed max-w-sm">{card.desc}</p>
                     </div>
 
-                    <div className="flex items-center gap-1 text-xs font-semibold text-primary-400 group-hover:text-primary-300 mt-4">
-                      <span>Open Workspace</span> <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+                    <div className="relative z-10 flex items-center gap-1 text-xs font-semibold text-primary-300 group-hover:text-white transition-colors mt-4">
+                      <span>Open Workspace</span> <ArrowRight className="w-3 h-3 group-hover:translate-x-1.5 transition-transform duration-300" />
                     </div>
                   </Link>
                 );
@@ -237,8 +232,8 @@ const Dashboard = () => {
 
           {/* Right panel: Recent messages inbox quick look */}
           <div className="lg:col-span-4 space-y-6">
-            <div className="flex items-center justify-between border-b border-slate-900 pb-3">
-              <h2 className="text-xl font-bold text-white">Recent Feedback</h2>
+            <div className="flex items-center justify-between border-b border-white/[0.06] pb-3">
+              <h2 className="font-display text-xl font-bold text-white">Recent Feedback</h2>
               <Link to="/admin/messages" className="text-xs text-primary-400 hover:text-primary-300 hover:underline">
                 View All
               </Link>
@@ -246,15 +241,16 @@ const Dashboard = () => {
 
             <div className="space-y-4">
               {recentMessages.length > 0 ? (
-                recentMessages.map((msg) => (
+                recentMessages.map((msg, mIdx) => (
                   <div
                     key={msg._id}
-                    className={`bg-slate-900/60 border ${
+                    style={{ animationDelay: `${500 + mIdx * 100}ms` }}
+                    className={`glass hover:translate-x-1 transition-transform duration-300 animate-slide-up border ${
                       msg.read ? 'border-slate-850' : 'border-primary-500/20 shadow-sm shadow-primary-500/5'
                     } p-4 rounded-xl space-y-2 relative overflow-hidden`}
                   >
                     {!msg.read && (
-                      <div className="absolute top-0 right-0 w-2 h-full bg-primary-500"></div>
+                      <div className="absolute top-0 right-0 w-1 h-full bg-gradient-to-b from-primary-400 to-cyan-400"></div>
                     )}
                     <div className="flex items-center justify-between text-xs">
                       <span className="font-bold text-slate-200 line-clamp-1">{msg.name}</span>

@@ -1,5 +1,5 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { SiteProvider } from './context/SiteContext';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -15,8 +15,10 @@ import ItemDetail from './pages/ItemDetail';
 import About from './pages/About';
 import Contact from './pages/Contact';
 
-// Admin Pages
+// Admin Components & Layout
 import Login from './admin/Login';
+import AdminLayout from './admin/AdminLayout';
+import AdminIndex from './admin/AdminIndex';
 import Dashboard from './admin/Dashboard';
 import ItemManager from './admin/ItemManager';
 import ItemForm from './admin/ItemForm';
@@ -24,12 +26,18 @@ import ContentManager from './admin/ContentManager';
 import Messages from './admin/Messages';
 import SettingsPage from './admin/Settings';
 
-// Layout Wrapper
-const Layout = ({ children }) => {
+// Public Website Layout Wrapper (contains public Navbar and Footer)
+const PublicLayout = ({ children }) => {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }, [pathname]);
+
   return (
-    <div className="flex flex-col min-h-screen bg-slate-950">
+    <div className="flex flex-col min-h-screen bg-slate-950 text-slate-100">
       <Navbar />
-      <main className="flex-grow">
+      <main key={pathname} className="flex-grow page-enter">
         {children}
       </main>
       <Footer />
@@ -43,92 +51,94 @@ function App() {
       <SiteProvider>
         <Router>
           <Routes>
-          {/* Public Views */}
-          <Route path="/" element={<Layout><Home /></Layout>} />
-          <Route path="/items" element={<Layout><Items /></Layout>} />
-          <Route path="/items/:id" element={<Layout><ItemDetail /></Layout>} />
-          <Route path="/about" element={<Layout><About /></Layout>} />
-          <Route path="/contact" element={<Layout><Contact /></Layout>} />
+            {/* ─── Public Pages (Public Navbar + Footer) ─── */}
+            <Route path="/" element={<PublicLayout><Home /></PublicLayout>} />
+            <Route path="/items" element={<PublicLayout><Items /></PublicLayout>} />
+            <Route path="/items/:id" element={<PublicLayout><ItemDetail /></PublicLayout>} />
+            <Route path="/about" element={<PublicLayout><About /></PublicLayout>} />
+            <Route path="/contact" element={<PublicLayout><Contact /></PublicLayout>} />
 
-          {/* Admin Login */}
-          <Route path="/admin/login" element={<Login />} />
+            {/* ─── Admin Entry Points ─── */}
+            {/* Direct http://localhost:5173/admin access */}
+            <Route path="/admin" element={<AdminIndex />} />
+            <Route path="/admin/login" element={<Login />} />
 
-          {/* Protected Administrative Dashboard Views */}
-          <Route
-            path="/admin/dashboard"
-            element={
-              <ProtectedRoute>
-                <Layout>
-                  <Dashboard />
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/items"
-            element={
-              <ProtectedRoute>
-                <Layout>
-                  <ItemManager />
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/items/new"
-            element={
-              <ProtectedRoute>
-                <Layout>
-                  <ItemForm />
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/items/:id/edit"
-            element={
-              <ProtectedRoute>
-                <Layout>
-                  <ItemForm />
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/content"
-            element={
-              <ProtectedRoute>
-                <Layout>
-                  <ContentManager />
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/messages"
-            element={
-              <ProtectedRoute>
-                <Layout>
-                  <Messages />
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/settings"
-            element={
-              <ProtectedRoute>
-                <Layout>
-                  <SettingsPage />
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
+            {/* ─── Dedicated Admin Panel (Protected + Independent AdminLayout) ─── */}
+            <Route
+              path="/admin/dashboard"
+              element={
+                <ProtectedRoute>
+                  <AdminLayout>
+                    <Dashboard />
+                  </AdminLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/items"
+              element={
+                <ProtectedRoute>
+                  <AdminLayout>
+                    <ItemManager />
+                  </AdminLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/items/new"
+              element={
+                <ProtectedRoute>
+                  <AdminLayout>
+                    <ItemForm />
+                  </AdminLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/items/:id/edit"
+              element={
+                <ProtectedRoute>
+                  <AdminLayout>
+                    <ItemForm />
+                  </AdminLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/content"
+              element={
+                <ProtectedRoute>
+                  <AdminLayout>
+                    <ContentManager />
+                  </AdminLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/messages"
+              element={
+                <ProtectedRoute>
+                  <AdminLayout>
+                    <Messages />
+                  </AdminLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/settings"
+              element={
+                <ProtectedRoute>
+                  <AdminLayout>
+                    <SettingsPage />
+                  </AdminLayout>
+                </ProtectedRoute>
+              }
+            />
 
-          {/* Fallback route - Redirect to Home */}
-          <Route path="*" element={<Layout><Home /></Layout>} />
-        </Routes>
-      </Router>
+            {/* Fallback route - Redirect to Home */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Router>
       </SiteProvider>
     </AuthProvider>
   );

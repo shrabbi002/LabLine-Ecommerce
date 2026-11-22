@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import api, { ASSET_BASE_URL } from '../api';
-import { ArrowLeft, Save, Upload, X, HelpCircle, AlertCircle, FileImage } from 'lucide-react';
+import { ArrowLeft, Save, Upload, X, HelpCircle, AlertCircle, FileImage, Image as ImageIcon } from 'lucide-react';
 
 const ItemForm = () => {
   const { id } = useParams();

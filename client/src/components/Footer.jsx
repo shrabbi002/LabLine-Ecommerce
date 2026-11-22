@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../api';
 import { useSite } from '../context/SiteContext';
-import { Mail, Phone, MapPin, ArrowUpRight, Heart } from 'lucide-react';
+import { Mail, Phone, MapPin, ArrowUpRight, Heart, ArrowUp } from 'lucide-react';
+import { Reveal } from './motion';
 
 // Custom inline SVGs for social icons
 const Facebook = (props) => (
@@ -71,136 +72,134 @@ const Footer = () => {
   }, []);
 
   const socialLinks = [
-    { icon: Facebook, url: contactInfo.facebook, label: 'Facebook', color: 'hover:text-blue-400 hover:border-blue-400/30' },
-    { icon: Twitter, url: contactInfo.twitter, label: 'Twitter', color: 'hover:text-sky-400 hover:border-sky-400/30' },
-    { icon: Instagram, url: contactInfo.instagram, label: 'Instagram', color: 'hover:text-pink-400 hover:border-pink-400/30' },
-    { icon: Linkedin, url: contactInfo.linkedin, label: 'LinkedIn', color: 'hover:text-blue-500 hover:border-blue-500/30' },
+    { icon: Facebook, url: contactInfo.facebook, label: 'Facebook' },
+    { icon: Twitter, url: contactInfo.twitter, label: 'Twitter' },
+    { icon: Instagram, url: contactInfo.instagram, label: 'Instagram' },
+    { icon: Linkedin, url: contactInfo.linkedin, label: 'LinkedIn' },
   ];
 
-  const quickLinks = [
-    { label: 'Home', path: '/' },
-    { label: 'Products', path: '/items' },
-    { label: 'About Us', path: '/about' },
-    { label: 'Contact Form', path: '/contact' },
-  ];
-
-  const portalLinks = [
-    { label: 'Admin Login', path: '/admin/login' },
-    { label: 'Dashboard Hub', path: '/admin/dashboard' },
+  const columns = [
+    {
+      title: 'Navigate',
+      links: [
+        { label: 'Home', path: '/' },
+        { label: 'Products', path: '/items' },
+        { label: 'About Us', path: '/about' },
+        { label: 'Contact', path: '/contact' },
+      ],
+    },
+    {
+      title: 'Discover',
+      links: [
+        { label: 'Featured Products', path: '/items' },
+        { label: 'Company Story', path: '/about' },
+        { label: 'Customer Support', path: '/contact' },
+      ],
+    },
   ];
 
   return (
-    <footer className="bg-slate-950 border-t border-slate-800/50 text-slate-400 relative overflow-hidden">
-      {/* Subtle gradient accent along top */}
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary-500/30 to-transparent" />
+    <footer className="relative mt-auto overflow-hidden border-t border-white/[0.06] bg-[#04050c] text-slate-400">
+      <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-primary-500/60 to-transparent" />
+      <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[700px] h-[300px] rounded-full bg-primary-600/10 blur-[120px] pointer-events-none" />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-8 md:gap-10">
-          {/* Logo & Description */}
-          <div className="col-span-2 sm:col-span-2 md:col-span-1 space-y-5">
-            <Link to="/" className="flex items-center gap-2.5 group inline-flex">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-primary-600 to-indigo-500 flex items-center justify-center text-white font-bold shadow-lg shadow-primary-500/10 group-hover:shadow-primary-500/30 transition-all duration-300">
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 sm:pt-20 pb-8">
+        <Reveal className="grid grid-cols-2 md:grid-cols-12 gap-10">
+          {/* Brand */}
+          <div className="col-span-2 md:col-span-5 space-y-6">
+            <Link to="/" className="inline-flex items-center gap-2.5 group">
+              <span className="w-10 h-10 rounded-xl bg-gradient-to-tr from-primary-600 via-indigo-500 to-cyan-400 flex items-center justify-center text-white font-display font-bold shadow-lg shadow-primary-600/30 group-hover:rotate-[8deg] transition-transform duration-500">
                 {websiteName ? websiteName.charAt(0).toUpperCase() : 'S'}
-              </div>
-              <span className="text-lg font-bold text-white">
-                {websiteName}
               </span>
+              <span className="font-display text-xl font-bold text-white">{websiteName}</span>
             </Link>
-            <p className="text-sm text-slate-500 leading-relaxed max-w-xs">
-              A premium space to catalog, explore, and showcase elite products, services, and developer portfolio pieces.
+            <p className="text-sm text-slate-500 leading-relaxed max-w-sm">
+              A premium space to catalog, explore, and showcase elite products, services, and portfolio pieces.
             </p>
-            {/* Social Icons */}
-            <div className="flex gap-2 pt-1">
-              {socialLinks.map((social, index) => {
+            <div className="flex gap-2.5">
+              {socialLinks.map((social) => {
                 const Icon = social.icon;
                 return (
                   <a
-                    key={index}
+                    key={social.label}
                     href={social.url}
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label={social.label}
-                    className={`w-9 h-9 rounded-lg bg-slate-900/80 border border-slate-800/60 flex items-center justify-center text-slate-500 transition-all duration-300 hover:bg-slate-800 hover:scale-105 ${social.color}`}
+                    className="group relative w-11 h-11 rounded-xl glass flex items-center justify-center text-slate-400 hover:text-white hover:-translate-y-1 transition-all duration-300 overflow-hidden"
                   >
-                    <Icon className="w-4 h-4" />
+                    <span className="absolute inset-0 bg-gradient-to-tr from-primary-600 to-cyan-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    <Icon className="relative w-4 h-4" />
                   </a>
                 );
               })}
             </div>
           </div>
 
-          {/* Quick Links */}
-          <div>
-            <h3 className="text-sm font-semibold text-slate-200 uppercase tracking-wider mb-4">Quick Links</h3>
-            <ul className="space-y-2.5">
-              {quickLinks.map((link) => (
-                <li key={link.path}>
-                  <Link
-                    to={link.path}
-                    className="text-sm text-slate-500 hover:text-white transition-colors duration-200 flex items-center gap-1 group"
-                  >
-                    {link.label}
-                    <ArrowUpRight className="w-3 h-3 opacity-0 -translate-y-0.5 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-200" />
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Portal Info */}
-          <div>
-            <h3 className="text-sm font-semibold text-slate-200 uppercase tracking-wider mb-4">Portal</h3>
-            <ul className="space-y-2.5">
-              {portalLinks.map((link) => (
-                <li key={link.path}>
-                  <Link
-                    to={link.path}
-                    className="text-sm text-slate-500 hover:text-white transition-colors duration-200 flex items-center gap-1 group"
-                  >
-                    {link.label}
-                    <ArrowUpRight className="w-3 h-3 opacity-0 -translate-y-0.5 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-200" />
-                  </Link>
-                </li>
-              ))}
-              <li className="pt-2 space-y-1">
-                <span className="text-slate-600 text-xs block">Vite React + Tailwind CSS</span>
-                <span className="text-slate-600 text-xs block">Node.js + Mongoose</span>
-              </li>
-            </ul>
-          </div>
+          {columns.map((col) => (
+            <div key={col.title} className="md:col-span-2">
+              <h3 className="text-xs font-semibold text-slate-200 uppercase tracking-[0.16em] mb-5">{col.title}</h3>
+              <ul className="space-y-3">
+                {col.links.map((link) => (
+                  <li key={link.label}>
+                    <Link to={link.path} className="group inline-flex items-center gap-1 text-sm text-slate-500 hover:text-white transition-colors duration-300">
+                      <span className="relative">
+                        {link.label}
+                        <span className="absolute left-0 -bottom-0.5 h-px w-full bg-gradient-to-r from-primary-400 to-cyan-400 scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300" />
+                      </span>
+                      <ArrowUpRight className="w-3 h-3 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
 
           {/* Contact */}
-          <div className="col-span-2 sm:col-span-1 space-y-4">
-            <h3 className="text-sm font-semibold text-slate-200 uppercase tracking-wider mb-4">Contact</h3>
-            <ul className="space-y-3">
-              <li className="flex items-start gap-2.5">
-                <MapPin className="w-4 h-4 text-primary-500 mt-0.5 flex-shrink-0" />
-                <span className="text-slate-500 text-xs leading-relaxed">{contactInfo.address}</span>
+          <div className="col-span-2 md:col-span-3">
+            <h3 className="text-xs font-semibold text-slate-200 uppercase tracking-[0.16em] mb-5">Contact</h3>
+            <ul className="space-y-4 text-sm">
+              <li className="flex items-start gap-3">
+                <MapPin className="w-4 h-4 text-primary-400 mt-0.5 flex-shrink-0" />
+                <span className="text-slate-500 leading-relaxed">{contactInfo.address}</span>
               </li>
-              <li className="flex items-center gap-2.5">
-                <Mail className="w-4 h-4 text-primary-500 flex-shrink-0" />
-                <a href={`mailto:${contactInfo.email}`} className="text-slate-500 hover:text-white transition-colors duration-200 text-xs break-all">
+              <li className="flex items-center gap-3">
+                <Mail className="w-4 h-4 text-primary-400 flex-shrink-0" />
+                <a href={`mailto:${contactInfo.email}`} className="text-slate-500 hover:text-white transition-colors break-all">
                   {contactInfo.email}
                 </a>
               </li>
-              <li className="flex items-center gap-2.5">
-                <Phone className="w-4 h-4 text-primary-500 flex-shrink-0" />
-                <a href={`tel:${contactInfo.phone}`} className="text-slate-500 hover:text-white transition-colors duration-200 text-xs">
+              <li className="flex items-center gap-3">
+                <Phone className="w-4 h-4 text-primary-400 flex-shrink-0" />
+                <a href={`tel:${contactInfo.phone}`} className="text-slate-500 hover:text-white transition-colors">
                   {contactInfo.phone}
                 </a>
               </li>
             </ul>
           </div>
+        </Reveal>
+
+        {/* Oversized wordmark */}
+        <div className="mt-16 select-none pointer-events-none overflow-hidden" aria-hidden="true">
+          <div className="font-display font-bold text-center leading-none text-[18vw] md:text-[12rem] bg-gradient-to-b from-white/[0.07] to-transparent bg-clip-text text-transparent tracking-tighter truncate">
+            {websiteName}
+          </div>
         </div>
 
-        {/* Bottom Bar */}
-        <div className="border-t border-slate-800/50 mt-10 sm:mt-12 pt-6 sm:pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-600">
+        <div className="border-t border-white/[0.06] pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-600">
           <p className="flex items-center gap-1">
-            © {new Date().getFullYear()} {websiteName}. Made with <Heart className="w-3 h-3 text-rose-500 fill-rose-500" /> All rights reserved.
+            © {new Date().getFullYear()} {websiteName}. Made with <Heart className="w-3 h-3 text-rose-500 fill-rose-500 animate-pulse" /> All rights reserved.
           </p>
-          <div className="flex gap-4 sm:gap-6">
-            <a href="#" className="hover:text-slate-400 transition-colors duration-200">Privacy Policy</a>
-            <a href="#" className="hover:text-slate-400 transition-colors duration-200">Terms of Service</a>
+          <div className="flex items-center gap-5">
+            <a href="#" className="hover:text-slate-300 transition-colors">Privacy Policy</a>
+            <a href="#" className="hover:text-slate-300 transition-colors">Terms of Service</a>
+            <button
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              className="group w-9 h-9 rounded-full glass flex items-center justify-center text-slate-400 hover:text-white transition-colors"
+              aria-label="Back to top"
+            >
+              <ArrowUp className="w-4 h-4 transition-transform group-hover:-translate-y-0.5" />
+            </button>
           </div>
         </div>
       </div>

@@ -166,7 +166,7 @@ app.use(cookieParser());
 // Rate limiting (Security Checklist)
 const generalLimiter = rateLimit({
   windowMs: 10 * 60 * 1000, // 10 minutes
-  max: 200, // limit each IP to 200 requests per window
+  max: 2000, // generous limit for smooth UI navigation and development
   message: {
     success: false,
     message: 'Too many requests from this IP, please try again later.',
@@ -177,10 +177,10 @@ app.use(generalLimiter);
 // Specific rate limiters for auth and form submissions
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 15, // limit each IP to 15 login requests per 15 minutes
+  max: 100, // allow up to 100 auth attempts per window
   message: {
     success: false,
-    message: 'Too many login attempts. Please try again after 15 minutes.',
+    message: 'Too many login attempts, please try again later.',
   },
 });
 
