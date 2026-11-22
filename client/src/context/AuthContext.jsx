@@ -43,7 +43,12 @@ export const AuthProvider = ({ children }) => {
         return { success: true };
       }
     } catch (error) {
-      const message = error.response?.data?.message || 'Login failed. Please check your credentials.';
+      const status = error.response?.status;
+      const message =
+        error.response?.data?.message ||
+        (status
+          ? `Server error (${status}) — the API did not respond correctly. Please try again later.`
+          : 'Cannot reach the server. Check your connection and try again.');
       return { success: false, message };
     } finally {
       setLoading(false);
